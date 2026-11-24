@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1311">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FitFast">
+  <meta name="description" content="Suivi du jeûne intermittent 17:7 : créneau, rappels, poids, eau, écarts et cigarettes.">
+  <title>FitFast — Jeûne 17:7</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="" class="brand-icon" width="36" height="36">
+        <div>
+          <p class="brand-name">FitFast</p>
+          <p class="brand-sub" id="header-date"></p>
+        </div>
+      </div>
+    </header>
+
+    <div id="install-banner" class="banner" hidden>
+      <div>
+        <strong>Installer FitFast</strong>
+        <p>Ajoute l’appli à ton écran d’accueil pour la retrouver en un clic.</p>
+      </div>
+      <div class="banner-actions">
+        <button type="button" class="btn btn-gold" id="btn-install">Installer</button>
+        <button type="button" class="btn btn-ghost" id="btn-install-dismiss" aria-label="Fermer">Plus tard</button>
+      </div>
+    </div>
+
+    <main>
+      <!-- ACCUEIL -->
+      <section id="view-home" class="view active" data-view="home">
+        <article id="status-card" class="status-card phase-fast">
+          <p class="status-kicker" id="status-kicker">En jeûne</p>
+          <p class="status-label" id="status-next-label">Ouverture du créneau dans</p>
+          <p class="countdown" id="countdown" aria-live="polite">--:--:--</p>
+          <p class="status-until" id="status-until"></p>
+        </article>
+
+        <section class="card today-card">
+          <div class="card-head">
+            <h2>Aujourd’hui</h2>
+            <button type="button" class="link" id="btn-goto-log">Ouvrir le journal</button>
+          </div>
+          <div class="today-grid" id="today-stats"></div>
+          <div class="quick-row">
+            <button type="button" class="btn btn-soft" id="btn-quick-water">+ 1 verre d’eau</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Ton programme</h2>
+          <ul class="plan-list" id="plan-list"></ul>
+        </section>
+
+        <section class="card">
+          <button type="button" class="accordion-trigger" id="btn-tips" aria-expanded="false">
+            <span>Conseils utiles</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <div class="accordion-body" id="tips-body" hidden>
+            <ul class="tips-list">
+              <li>Pendant le jeûne, tu peux boire de l’eau, du café ou du thé <strong>sans sucre</strong>.</li>
+              <li>Le repas de <strong>18h30</strong> est le plus copieux : protéines et légumes pour tenir jusqu’au lendemain.</li>
+              <li>Un chocolat chaud pendant la coupure (entre 15h et 18h30) reste dans le créneau. Évite d’en prendre tous les jours si tu veux perdre du poids.</li>
+              <li>Une bière en fin de service rompt le jeûne. Garde-la pour le repas de 18h30 ou les jours de repos, ou prends une bière 0,0 %, une eau gazeuse ou une tisane.</li>
+              <li>La cigarette ne rompt pas le jeûne, mais à jeun elle peut donner des vertiges. Bois un grand verre d’eau avant la première.</li>
+              <li>Les lundis et mardis, garde les mêmes heures : si tu te lèves à 13h, le premier repas se prend au réveil, le dernier avant 18h30.</li>
+            </ul>
+          </div>
+        </section>
+      </section>
+
+      <!-- JOURNAL -->
+      <section id="view-log" class="view" data-view="log">
+        <div class="date-nav">
+          <button type="button" class="icon-btn" id="btn-day-prev" aria-label="Jour précédent">‹</button>
+          <div class="date-nav-center">
+            <div class="date-wrap">
+              <span id="log-date-label">—</span>
+              <input type="date" id="log-date" aria-label="Date du journal">
+            </div>
+            <button type="button" class="link" id="btn-day-today">Aujourd’hui</button>
+          </div>
+          <button type="button" class="icon-btn" id="btn-day-next" aria-label="Jour suivant">›</button>
+        </div>
+
+        <section class="card">
+          <h2>Jeûne respecté ?</h2>
+          <p class="hint">Oui si tu n’as rien mangé ni bu de calorique hors du créneau (bière comprise).</p>
+          <div class="choice-row" role="group" aria-label="Jeûne respecté">
+            <button type="button" class="choice" data-fast="yes" id="fast-yes">Oui</button>
+            <button type="button" class="choice" data-fast="no" id="fast-no">Non</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Poids</h2>
+          <div class="input-row">
+            <input type="number" id="log-weight" inputmode="decimal" step="0.1" min="30" max="300" placeholder="ex. 82,5">
+            <span class="suffix">kg</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Eau</h2>
+            <p class="muted" id="water-goal-label"></p>
+          </div>
+          <div class="water-track">
+            <div class="progress" aria-hidden="true"><span id="water-bar"></span></div>
+            <p class="water-amount" id="water-amount">0 L</p>
+          </div>
+          <div class="stepper-row">
+            <button type="button" class="btn btn-soft" id="btn-water-minus">− 1 verre</button>
+            <button type="button" class="btn btn-soft" id="btn-water-plus">+ 1 verre</button>
+            <button type="button" class="btn btn-soft" id="btn-water-plus2">+ 500 ml</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Écarts</h2>
+          <div class="counter-list">
+            <div class="counter">
+              <div>
+                <p class="counter-label">Bière</p>
+                <p class="counter-sub">y compris en fin de service</p>
+              </div>
+              <div class="stepper">
+                <button type="button" data-ecart="biere" data-delta="-1" aria-label="Moins de bières">−</button>
+                <span id="ecart-biere">0</span>
+                <button type="button" data-ecart="biere" data-delta="1" aria-label="Plus de bières">+</button>
+              </div>
+            </div>
+            <div class="counter">
+              <div>
+                <p class="counter-label">Grignotage</p>
+                <p class="counter-sub">hors repas</p>
+              </div>
+              <div class="stepper">
+                <button type="button" data-ecart="grignotage" data-delta="-1" aria-label="Moins de grignotages">−</button>
+                <span id="ecart-grignotage">0</span>
+                <button type="button" data-ecart="grignotage" data-delta="1" aria-label="Plus de grignotages">+</button>
+              </div>
+            </div>
+            <div class="counter">
+              <div>
+                <p class="counter-label">Autre</p>
+                <p class="counter-sub">sucré, alcool, etc.</p>
+              </div>
+              <div class="stepper">
+                <button type="button" data-ecart="autre" data-delta="-1" aria-label="Moins d’autres écarts">−</button>
+                <span id="ecart-autre">0</span>
+                <button type="button" data-ecart="autre" data-delta="1" aria-label="Plus d’autres écarts">+</button>
+              </div>
+            </div>
+          </div>
+          <label class="field">
+            <span>Précision (optionnel)</span>
+            <input type="text" id="ecart-note" maxlength="120" placeholder="ex. chocolat chaud, soda…">
+          </label>
+        </section>
+
+        <section class="card">
+          <h2>Cigarettes</h2>
+          <div class="counter">
+            <p class="counter-label" id="cig-label">Nombre</p>
+            <div class="stepper">
+              <button type="button" id="btn-cig-minus" aria-label="Moins de cigarettes">−</button>
+              <span id="cig-count">0</span>
+              <button type="button" id="btn-cig-plus" aria-label="Plus de cigarettes">+</button>
+            </div>
+          </div>
+        </section>
+
+        <p class="autosave" id="autosave-msg">Enregistrement automatique</p>
+      </section>
+
+      <!-- PROGRÈS -->
+      <section id="view-progress" class="view" data-view="progress">
+        <section class="card streak-card">
+          <p class="streak-kicker">Série de jeûnes respectés</p>
+          <p class="streak-value" id="streak-value">0</p>
+          <p class="streak-unit" id="streak-unit">jour</p>
+          <p class="muted" id="streak-hint"></p>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Poids</h2>
+            <p class="muted" id="weight-summary"></p>
+          </div>
+          <canvas id="weight-chart" width="640" height="320" role="img" aria-label="Courbe de poids"></canvas>
+          <p class="chart-empty" id="weight-empty" hidden>Indique ton poids dans le journal ou les réglages pour voir la courbe.</p>
+        </section>
+
+        <section class="card">
+          <h2>7 derniers jours</h2>
+          <canvas id="trends-chart" width="640" height="280" role="img" aria-label="Tendances eau, cigarettes et écarts"></canvas>
+          <ul class="legend" id="trends-legend">
+            <li><span class="dot water"></span> Eau (L)</li>
+            <li><span class="dot cig"></span> Cigarettes</li>
+            <li><span class="dot gap"></span> Écarts</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Historique</h2>
+          <div id="history-list" class="history-list"></div>
+        </section>
+      </section>
+
+      <!-- RÉGLAGES -->
+      <section id="view-settings" class="view" data-view="settings">
+        <section class="card">
+          <h2>Poids de départ et objectif</h2>
+          <div class="field-grid">
+            <label class="field">
+              <span>Poids actuel (kg)</span>
+              <input type="number" id="set-weight-current" inputmode="decimal" step="0.1" min="30" max="300" placeholder="—">
+            </label>
+            <label class="field">
+              <span>Objectif (kg)</span>
+              <input type="number" id="set-weight-goal" inputmode="decimal" step="0.1" min="30" max="300" placeholder="—">
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Créneau alimentaire</h2>
+          <div class="field-grid">
+            <label class="field">
+              <span>Début</span>
+              <input type="time" id="set-window-start">
+            </label>
+            <label class="field">
+              <span>Fin</span>
+              <input type="time" id="set-window-end">
+            </label>
+          </div>
+          <p class="hint">Par défaut 11h30–18h30, tous les jours. Tu t’arrêtes de manger vers l’heure de début du jeûne ci-dessous.</p>
+        </section>
+
+        <section class="card">
+          <h2>Notifications</h2>
+          <div class="callout">
+            <p>Sur Android, une appli web (PWA) <strong>ne peut pas réveiller le téléphone de façon fiable</strong> une fois fermée : Chrome n’envoie pas les notifications programmées à l’heure dite.</p>
+            <p>Quand FitFast est ouvert (ou laissé au premier plan), les rappels fonctionnent. Pour être sûr de les recevoir même l’appli fermée, ajoute-les dans <strong>Google Agenda</strong> (fichier ci-dessous) ou dans l’<strong>Horloge Samsung</strong>.</p>
+          </div>
+          <div class="stack">
+            <button type="button" class="btn btn-gold" id="btn-enable-notifs">Activer les notifications de l’appli</button>
+            <button type="button" class="btn btn-soft" id="btn-test-notif">Tester une notification</button>
+            <p class="muted" id="notif-status"></p>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Début du créneau</span>
+              <input type="time" id="set-notif-meal">
+            </label>
+            <label class="field">
+              <span>Fin de créneau bientôt</span>
+              <input type="time" id="set-notif-soon">
+            </label>
+            <label class="field">
+              <span>Début du jeûne</span>
+              <input type="time" id="set-notif-fast">
+            </label>
+            <label class="field">
+              <span>Bilan du soir</span>
+              <input type="time" id="set-notif-bilan">
+            </label>
+          </div>
+          <h3 class="subhead">Rappels d’eau</h3>
+          <div class="field-grid">
+            <label class="field">
+              <span>De</span>
+              <input type="time" id="set-water-from">
+            </label>
+            <label class="field">
+              <span>À</span>
+              <input type="time" id="set-water-to">
+            </label>
+            <label class="field field-span">
+              <span>Fréquence</span>
+              <select id="set-water-every">
+                <option value="60">Toutes les heures</option>
+                <option value="90">Toutes les 1 h 30</option>
+                <option value="120">Toutes les 2 heures</option>
+                <option value="180">Toutes les 3 heures</option>
+              </select>
+            </label>
+            <label class="field field-span">
+              <span>Objectif d’eau quotidien</span>
+              <div class="input-row">
+                <input type="number" id="set-water-goal" inputmode="numeric" step="50" min="250" max="6000">
+                <span class="suffix">ml</span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Rappels fiables (recommandé)</h2>
+          <button type="button" class="btn btn-gold" id="btn-download-ics">Télécharger le calendrier des rappels</button>
+          <p class="hint">Ouvre le fichier avec <strong>Google Agenda</strong>, puis ajoute tous les événements. Vérifie que les notifications de l’agenda sont activées sur le téléphone.</p>
+          <button type="button" class="accordion-trigger" id="btn-clock-help" aria-expanded="false">
+            <span>Ou créer des alarmes dans l’Horloge Samsung</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <div class="accordion-body" id="clock-help" hidden>
+            <ol class="steps" id="clock-steps"></ol>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Sauvegarde</h2>
+          <p class="hint">Tes données restent sur ce téléphone. Exporte une copie de temps en temps.</p>
+          <div class="stack">
+            <button type="button" class="btn btn-soft" id="btn-export">Exporter mes données</button>
+            <button type="button" class="btn btn-soft" id="btn-import">Importer une sauvegarde</button>
+            <input type="file" id="import-file" accept="application/json,.json" hidden>
+            <button type="button" class="btn btn-danger-ghost" id="btn-reset">Effacer toutes les données</button>
+          </div>
+        </section>
+
+        <p class="footnote">FitFast — jeûne 17:7. Aucune donnée n’est envoyée sur internet.</p>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Navigation principale">
+      <button type="button" class="tab active" data-nav="home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+        <span>Accueil</span>
+      </button>
+      <button type="button" class="tab" data-nav="log">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v16l-7-3-7 3V5a2 2 0 0 1 2-2zm2 6h6M9 13h6"/></svg>
+        <span>Journal</span>
+      </button>
+      <button type="button" class="tab" data-nav="progress">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5h2v14H4zm5 0V11h2v8H9zm5 0V8h2v11h-2zm5 0v-6h2v6h-2z"/></svg>
+        <span>Progrès</span>
+      </button>
+      <button type="button" class="tab" data-nav="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 3h3.6l.5 2.1a6.8 6.8 0 0 1 1.7 1l2-1 1.8 3.1-1.6 1.5c.1.6.2 1.1.2 1.3s-.1.8-.2 1.3l1.6 1.5-1.8 3.1-2-1a6.8 6.8 0 0 1-1.7 1L13.8 21h-3.6l-.5-2.1a6.8 6.8 0 0 1-1.7-1l-2 1-1.8-3.1 1.6-1.5A6.5 6.5 0 0 1 6 12c0-.2.1-.8.2-1.3L4.6 9.2 6.4 6.1l2 1a6.8 6.8 0 0 1 1.7-1L10.2 3zM12 9.5A2.5 2.5 0 1 0 12 14.5 2.5 2.5 0 0 0 12 9.5z"/></svg>
+        <span>Réglages</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>
